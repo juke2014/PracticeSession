@@ -1,2 +1,0 @@
-# PracticeSession
-Created with CodeSandbox
