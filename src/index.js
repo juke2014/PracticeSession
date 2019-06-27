@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import * as CourseUtils from "./validateCourseUtils";
 import * as SemesterUtils from "./validateSemesterUtils";
 import * as CommonUtils from "./commonUtils";
-import { makeStyles } from "@material-ui/core/styles";
+import * as StyleUtils from "./styleUtils";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -12,40 +12,23 @@ import Paper from "@material-ui/core/Paper";
 
 import "./styles.css";
 
-let TABLEROWS = [];
-
-const useStyles = makeStyles(theme => ({
-  root: {
-    width: "100%",
-    marginTop: theme.spacing(3),
-    overflowX: "auto"
-  },
-  table: {
-    minWidth: 650
-  }
-}));
-
-function createData(name, value) {
-  return { name, value };
-}
-
 class App extends React.Component {
   constructor(props) {
     super(props);
     // this.state = { resultObj: {}, show: false };
-    this.state = { resultObj: { message: "", error: false } };
+    this.state = { resultObj: { message: "", error: false, tablerows: [] } };
     this.inputRef = React.createRef();
-    this.processInput = this.processInput.bind(this);
+    this.update = this.update.bind(this);
     // this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  processInput() {
+  update() {
     this.setState({
-      resultObj: this.validateCourseString(this.inputRef.current.value)
+      resultObj: this.validateData(this.inputRef.current.value)
     });
   }
 
-  validateCourseString(str) {
+  validateData(str) {
     let departmentName = "";
     let courseNumber = "";
     let semesterName = "";
@@ -91,8 +74,6 @@ class App extends React.Component {
       };
     }
 
-    // console.log(SemesterUtils);
-
     let resultFromSemesterValidation = SemesterUtils.validateSemesterData(
       str,
       semesterName,
@@ -109,16 +90,13 @@ class App extends React.Component {
       i = resultFromSemesterValidation.i;
     }
 
-    // (// console.log("departmentName:" + departmentName);
-    // console.log("course number:" + courseNumber);
-    // console.log("semName:" + semesterName);
-    // console.log("year:" + year);
-    TABLEROWS = [
-      createData("Department:", departmentName),
-      createData("Course Number:", courseNumber),
-      createData("Semester:", semesterName),
-      createData("Year:", year)
+    const tablerows = [
+      { "Department:": departmentName },
+      { "Course Number:": courseNumber },
+      { "Semester:": semesterName },
+      { "Year:": year }
     ];
+    this.setState({ tablerows: tablerows });
 
     return {
       message: "SUCCESS",
@@ -141,10 +119,10 @@ class App extends React.Component {
           ) : (
             <div>
               <br />
-              <Paper classes={useStyles.root}>
-                <Table classes={useStyles.table}>
+              <Paper classes={StyleUtils.useStyles.root}>
+                <Table classes={StyleUtils.useStyles.table}>
                   <TableBody>
-                    {TABLEROWS.map(row => (
+                    {this.state.tablerows.map(row => (
                       <TableRow key={row.name}>
                         <TableCell component="th" scope="row">
                           {row.name}

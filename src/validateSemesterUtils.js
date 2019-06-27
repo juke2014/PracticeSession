@@ -31,6 +31,7 @@ export function validateSemesterData(str, semesterName, year, i) {
 
   if (CommonUtils.isLetter(str[i]) === false) {
     // this should be year
+    // console.log(i + ";" + str[i]);
     while (i < str.length && isNaN(str[i]) === false) year += str[i++];
     if (year.length !== 2 && year.length !== 4) {
       return {
@@ -46,8 +47,10 @@ export function validateSemesterData(str, semesterName, year, i) {
     }
   } else {
     // this should be valid semester name
-    while (i < str.length && CommonUtils.isLetter(str[i]) === true)
+    while (i < str.length && CommonUtils.isLetter(str[i]) === true) {
       semesterName += str[i++];
+    }
+
     // validate semester name
     let lowerCaseStr = semesterName.toLowerCase();
     if (SEMSTER_NAMES.has(lowerCaseStr) === false) {
@@ -99,8 +102,11 @@ export function validateSemesterData(str, semesterName, year, i) {
     }
   } else {
     // this should be valid semester name
-    while (i < str.length && CommonUtils.isLetter(str[i]) === true)
+    while (i < str.length && CommonUtils.isLetter(str[i]) === true) {
+      console.log(i + ";" + str.length);
       semesterName += str[i++];
+    }
+
     // validate semester name
     let lowerCaseStr = semesterName.toLowerCase();
     if (SEMSTER_NAMES.has(lowerCaseStr) === false) {
