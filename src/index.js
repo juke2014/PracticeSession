@@ -12,14 +12,21 @@ import Paper from "@material-ui/core/Paper";
 
 import "./styles.css";
 
+function createData(obj) {
+  let arr = [];
+  for (const name in obj) {
+    let value = obj[name];
+    arr.push({ name, value });
+  }
+  return arr;
+}
+
 class App extends React.Component {
   constructor(props) {
     super(props);
-    // this.state = { resultObj: {}, show: false };
-    this.state = { resultObj: { message: "", error: false, tablerows: [] } };
+    this.state = { resultObj: { message: "", error: false }, tablerows: [] };
     this.inputRef = React.createRef();
     this.update = this.update.bind(this);
-    // this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   update() {
@@ -90,16 +97,33 @@ class App extends React.Component {
       i = resultFromSemesterValidation.i;
     }
 
-    const tablerows = [
-      { "Department:": departmentName },
-      { "Course Number:": courseNumber },
-      { "Semester:": semesterName },
-      { "Year:": year }
-    ];
-    this.setState({ tablerows: tablerows });
+    const tablerows = createData({
+      Department: departmentName,
+      "Course Number": courseNumber,
+      Semester: semesterName,
+      Year: year
+    });
 
     return {
-      message: "SUCCESS",
+      message: (
+        <div>
+          <br />
+          <Paper classes={StyleUtils.useStyles.root}>
+            <Table classes={StyleUtils.useStyles.table}>
+              <TableBody>
+                {tablerows.map(row => (
+                  <TableRow key={row.name}>
+                    <TableCell component="th" scope="row">
+                      {row.name}
+                    </TableCell>
+                    <TableCell align="right">{row.value}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Paper>
+        </div>
+      ),
       error: false
     };
   }
@@ -111,30 +135,10 @@ class App extends React.Component {
           Name:
           <input type="text" ref={this.inputRef} />
         </label>
-        <input type="submit" onClick={this.processInput} />
+        <input type="submit" onClick={this.update} />
         <br />
         <label style={{ color: this.state.resultObj.error ? "red" : "green" }}>
-          {this.state.resultObj.error ? (
-            this.state.resultObj.message
-          ) : (
-            <div>
-              <br />
-              <Paper classes={StyleUtils.useStyles.root}>
-                <Table classes={StyleUtils.useStyles.table}>
-                  <TableBody>
-                    {this.state.tablerows.map(row => (
-                      <TableRow key={row.name}>
-                        <TableCell component="th" scope="row">
-                          {row.name}
-                        </TableCell>
-                        <TableCell align="right">{row.value}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Paper>
-            </div>
-          )}
+          {this.state.resultObj.message}
         </label>
       </div>
     );

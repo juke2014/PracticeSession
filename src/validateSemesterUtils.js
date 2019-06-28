@@ -1,4 +1,5 @@
 import * as CommonUtils from "./commonUtils";
+import * as ErrorUtils from "./errorUtils";
 const SEMSTER_NAMES = new Set([
   "f",
   "fall",
@@ -22,28 +23,27 @@ const SEMSTER_KV_PAIRS = new Map([
 ]);
 export function validateSemesterData(str, semesterName, year, i) {
   // check if invalid semester+year info i.e. either letter or digit
-  if (CommonUtils.isLetter(str[i]) === false && isNaN(str[i]) === true) {
-    return {
-      message: "Invalid character in Semester+Year info with: " + str[i],
-      error: true
-    };
+  if (
+    CommonUtils.isLetter(str[i]) === false &&
+    CommonUtils.isDigit(str[i]) === false
+  ) {
+    return ErrorUtils.error2Msg(506, str[i]);
   }
 
   if (CommonUtils.isLetter(str[i]) === false) {
     // this should be year
     // console.log(i + ";" + str[i]);
-    while (i < str.length && isNaN(str[i]) === false) year += str[i++];
+    while (i < str.length && CommonUtils.isDigit(str[i]) === true)
+      year += str[i++];
+
     if (year.length !== 2 && year.length !== 4) {
-      return {
-        message: "Invalid year: " + year,
-        error: true
-      };
+      return ErrorUtils.error2Msg(507, year);
     }
     if (year.length === 4 && year.slice(0, 2) !== "20") {
-      return {
-        message: "Only 2000+ year can be entered",
-        error: true
-      };
+      return ErrorUtils.error2Msg(508);
+    }
+    if (i >= str.length) {
+      return ErrorUtils.error2Msg(509);
     }
   } else {
     // this should be valid semester name
@@ -54,74 +54,60 @@ export function validateSemesterData(str, semesterName, year, i) {
     // validate semester name
     let lowerCaseStr = semesterName.toLowerCase();
     if (SEMSTER_NAMES.has(lowerCaseStr) === false) {
-      return {
-        message: "Invalid semester name: " + semesterName,
-        error: true
-      };
+      return ErrorUtils.error2Msg(510, semesterName);
+    }
+
+    if (i >= str.length) {
+      return ErrorUtils.error2Msg(511);
     }
   }
 
   // Check if space delimiter
   // check if invalid semester+year info i.e. either letter or digit
-  if (CommonUtils.isLetter(str[i]) === false && isNaN(str[i]) === true) {
+  if (
+    CommonUtils.isLetter(str[i]) === false &&
+    CommonUtils.isDigit(str[i]) === false
+  ) {
     if (str[i] !== " ") {
-      return {
-        message:
-          "Invalid delimiter for Semester+Year info sub string: " + str[i],
-        error: true
-      };
-    } else {
-      i++;
+      return ErrorUtils.error2Msg(512, str[i]);
     }
+    i++;
   }
 
   // TODO: Refactor below code with code just above by writing a function
   // check if invalid semester+year info i.e. either letter or digit
-  if (CommonUtils.isLetter(str[i]) === false && isNaN(str[i]) === true) {
-    return {
-      message: "Invalid character in Semester+Year info with: " + str[i],
-      error: true
-    };
+  if (
+    CommonUtils.isLetter(str[i]) === false &&
+    CommonUtils.isDigit(str[i]) === false
+  ) {
+    return ErrorUtils.error2Msg(513, str[i]);
   }
 
   if (CommonUtils.isLetter(str[i]) === false) {
     // this should be year
-    while (i < str.length && isNaN(str[i]) === false) year += str[i++];
+    while (i < str.length && CommonUtils.isDigit(str[i]) === true)
+      year += str[i++];
     if (year.length !== 2 && year.length !== 4) {
-      return {
-        // TODO: refactor all return statements
-        message: "Invalid year: " + year,
-        error: true
-      };
+      return ErrorUtils.error2Msg(513, year);
     }
     if (year.length === 4 && year.slice(0, 2) !== "20") {
-      return {
-        message: "Only 2000+ year can be entered",
-        error: true
-      };
+      return ErrorUtils.error2Msg(515);
     }
   } else {
     // this should be valid semester name
     while (i < str.length && CommonUtils.isLetter(str[i]) === true) {
-      console.log(i + ";" + str.length);
       semesterName += str[i++];
     }
 
     // validate semester name
     let lowerCaseStr = semesterName.toLowerCase();
     if (SEMSTER_NAMES.has(lowerCaseStr) === false) {
-      return {
-        message: "Invalid semester name: " + semesterName,
-        error: true
-      };
+      return ErrorUtils.error2Msg(516, semesterName);
     }
   }
 
   if (i !== str.length) {
-    return {
-      message: "Unexpected Characters after Semester+Year infro: ",
-      error: true
-    };
+    return ErrorUtils.error2Msg(517);
   }
 
   // Get unabbreviated semester name
