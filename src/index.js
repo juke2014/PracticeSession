@@ -3,7 +3,8 @@ import ReactDOM from "react-dom";
 import * as CourseUtils from "./validateCourseUtils";
 import * as SemesterUtils from "./validateSemesterUtils";
 import * as CommonUtils from "./commonUtils";
-import { makeStyles } from "@material-ui/core/styles";
+import * as StyleUtils from "./styleUtils";
+import * as ErrorUtils from "./errorUtils";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -12,40 +13,30 @@ import Paper from "@material-ui/core/Paper";
 
 import "./styles.css";
 
-let TABLEROWS = [];
-
-const useStyles = makeStyles(theme => ({
-  root: {
-    width: "100%",
-    marginTop: theme.spacing(3),
-    overflowX: "auto"
-  },
-  table: {
-    minWidth: 650
+function createData(obj) {
+  let arr = [];
+  for (const name in obj) {
+    let value = obj[name];
+    arr.push({ name, value });
   }
-}));
-
-function createData(name, value) {
-  return { name, value };
+  return arr;
 }
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-    // this.state = { resultObj: {}, show: false };
-    this.state = { resultObj: { message: "", error: false } };
+    this.state = { resultObj: { message: "", error: false }, tablerows: [] };
     this.inputRef = React.createRef();
-    this.processInput = this.processInput.bind(this);
-    // this.handleSubmit = this.handleSubmit.bind(this);
+    this.update = this.update.bind(this);
   }
 
-  processInput() {
+  update() {
     this.setState({
-      resultObj: this.validateCourseString(this.inputRef.current.value)
+      resultObj: this.validateData(this.inputRef.current.value)
     });
   }
 
-  validateCourseString(str) {
+  validateData(str) {
     let departmentName = "";
     let courseNumber = "";
     let semesterName = "";
@@ -70,28 +61,15 @@ class App extends React.Component {
     }
     // Check if space between Course and Semester Strings occur
     if (i >= str.length) {
-      return {
-        message:
-          "Semester Information missing after Department+Course Information",
-        error: true
-      };
+      return ErrorUtils.error2Msg(518);
     }
     if (str[i++] !== " ") {
-      return {
-        message:
-          "Space required between Department+Course info and Semester+Year info",
-        error: true
-      };
+      return ErrorUtils.error2Msg(519);
     }
     // check if invalid semester+year info i.e. either letter or digit
     if (CommonUtils.isLetter(str[i]) === false && isNaN(str[i]) === true) {
-      return {
-        message: "Invalid character in Semester+Year info with: " + str[i],
-        error: true
-      };
+      return ErrorUtils.error2Msg(520, str[i]);
     }
-
-    // console.log(SemesterUtils);
 
     let resultFromSemesterValidation = SemesterUtils.validateSemesterData(
       str,
@@ -109,19 +87,33 @@ class App extends React.Component {
       i = resultFromSemesterValidation.i;
     }
 
-    // (// console.log("departmentName:" + departmentName);
-    // console.log("course number:" + courseNumber);
-    // console.log("semName:" + semesterName);
-    // console.log("year:" + year);
-    TABLEROWS = [
-      createData("Department:", departmentName),
-      createData("Course Number:", courseNumber),
-      createData("Semester:", semesterName),
-      createData("Year:", year)
-    ];
+    const tablerows = createData({
+      Department: departmentName,
+      "Course Number": courseNumber,
+      Semester: semesterName,
+      Year: year
+    });
 
     return {
-      message: "SUCCESS",
+      message: (
+        <div>
+          <br />
+          <Paper classes={StyleUtils.useStyles.root}>
+            <Table classes={StyleUtils.useStyles.table}>
+              <TableBody>
+                {tablerows.map(row => (
+                  <TableRow key={row.name}>
+                    <TableCell component="th" scope="row">
+                      {row.name}
+                    </TableCell>
+                    <TableCell align="right">{row.value}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Paper>
+        </div>
+      ),
       error: false
     };
   }
@@ -133,30 +125,10 @@ class App extends React.Component {
           Name:
           <input type="text" ref={this.inputRef} />
         </label>
-        <input type="submit" onClick={this.processInput} />
+        <input type="submit" onClick={this.update} />
         <br />
         <label style={{ color: this.state.resultObj.error ? "red" : "green" }}>
-          {this.state.resultObj.error ? (
-            this.state.resultObj.message
-          ) : (
-            <div>
-              <br />
-              <Paper classes={useStyles.root}>
-                <Table classes={useStyles.table}>
-                  <TableBody>
-                    {TABLEROWS.map(row => (
-                      <TableRow key={row.name}>
-                        <TableCell component="th" scope="row">
-                          {row.name}
-                        </TableCell>
-                        <TableCell align="right">{row.value}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Paper>
-            </div>
-          )}
+          {this.state.resultObj.message}
         </label>
       </div>
     );
