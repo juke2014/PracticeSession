@@ -100,6 +100,26 @@ export function error2Msg(errorCode, str) {
         error: true
       };
 
+    case 518:
+      return {
+        message:
+          "Semester Information missing after Department+Course Information",
+        error: true
+      };
+
+    case 519:
+      return {
+        message:
+          "Space required between Department+Course info and Semester+Year info",
+        error: true
+      };
+
+    case 520:
+      return {
+        message: "Invalid character in Semester+Year info with: " + str,
+        error: true
+      };
+
     default:
       return "Internal Validation Error";
   }

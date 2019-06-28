@@ -4,6 +4,7 @@ import * as CourseUtils from "./validateCourseUtils";
 import * as SemesterUtils from "./validateSemesterUtils";
 import * as CommonUtils from "./commonUtils";
 import * as StyleUtils from "./styleUtils";
+import * as ErrorUtils from "./errorUtils";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -60,25 +61,14 @@ class App extends React.Component {
     }
     // Check if space between Course and Semester Strings occur
     if (i >= str.length) {
-      return {
-        message:
-          "Semester Information missing after Department+Course Information",
-        error: true
-      };
+      return ErrorUtils.error2Msg(518);
     }
     if (str[i++] !== " ") {
-      return {
-        message:
-          "Space required between Department+Course info and Semester+Year info",
-        error: true
-      };
+      return ErrorUtils.error2Msg(519);
     }
     // check if invalid semester+year info i.e. either letter or digit
     if (CommonUtils.isLetter(str[i]) === false && isNaN(str[i]) === true) {
-      return {
-        message: "Invalid character in Semester+Year info with: " + str[i],
-        error: true
-      };
+      return ErrorUtils.error2Msg(520, str[i]);
     }
 
     let resultFromSemesterValidation = SemesterUtils.validateSemesterData(
